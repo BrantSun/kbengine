@@ -38,6 +38,7 @@ namespace Network
 //-------------------------------------------------------------------------------------
 PacketReceiver::PacketReceiver() :
 	pEndpoint_(NULL),
+	pChannel_(NULL),
 	pNetworkInterface_(NULL)
 {
 }
@@ -46,6 +47,7 @@ PacketReceiver::PacketReceiver() :
 PacketReceiver::PacketReceiver(EndPoint & endpoint,
 	   NetworkInterface & networkInterface	) :
 	pEndpoint_(&endpoint),
+	pChannel_(NULL),
 	pNetworkInterface_(&networkInterface)
 {
 }
@@ -74,7 +76,7 @@ Reason PacketReceiver::processPacket(Channel* pChannel, Packet * pPacket)
 {
 	if (pChannel != NULL)
 	{
-		pChannel->onPacketReceived(pPacket->length());
+		pChannel->onPacketReceived((int)pPacket->length());
 
 		if (pChannel->pFilter())
 		{
@@ -94,7 +96,16 @@ EventDispatcher & PacketReceiver::dispatcher()
 //-------------------------------------------------------------------------------------
 Channel* PacketReceiver::getChannel()
 {
-	return pNetworkInterface_->findChannel(pEndpoint_->addr());
+	if (pChannel_)
+	{
+		if (pChannel_->isDestroyed())
+			return NULL;
+
+		return pChannel_;
+	}
+
+	pChannel_ = pNetworkInterface_->findChannel(pEndpoint_->addr());
+	return pChannel_;
 }
 
 //-------------------------------------------------------------------------------------

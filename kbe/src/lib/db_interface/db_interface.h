@@ -56,8 +56,9 @@ public:
 	lastquery_()
 	{
 		strncpy(name_, name, MAX_NAME);
-		dbIndex_ = g_kbeSrvConfig.dbInterfaceName2dbInterfaceIndex(this->name());
-		KBE_ASSERT(dbIndex_ >= 0);
+		int dbIndex = g_kbeSrvConfig.dbInterfaceName2dbInterfaceIndex(this->name());
+		KBE_ASSERT(dbIndex >= 0);
+		dbIndex_ = dbIndex;
 	};
 
 	virtual ~DBInterface()
@@ -97,7 +98,7 @@ public:
 	virtual bool query(const char* cmd, uint32 size, bool printlog = true, MemoryStream * result = NULL) = 0;
 	virtual bool query(const std::string& cmd, bool printlog = true, MemoryStream * result = NULL)
 	{
-		return query(cmd.c_str(), cmd.size(), printlog, result);
+		return query(cmd.c_str(), (uint32)cmd.size(), printlog, result);
 	}
 
 	/**

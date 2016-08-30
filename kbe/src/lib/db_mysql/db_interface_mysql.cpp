@@ -316,8 +316,8 @@ bool DBInterfaceMysql::checkEnvironment()
 				}
 				else
 				{
-					CRITICAL_MSG(fmt::format("DBInterfaceMysql::checkEnvironment: [my.cnf or my.ini]->lower_case_table_names != 0, curr={}!\n"
-						"Windows use cmd('sc qc MySQL|find \".ini\"') to view the configuration directory.\n", v));
+					CRITICAL_MSG(fmt::format("DBInterfaceMysql::checkEnvironment: [my.cnf or my.ini]->lower_case_table_names != 2 or 0, curr={}!\n"
+						"Windows use CMD(wmic service where \"name like 'mysql%'\") to view the configuration directory.\n", v));
 				}
 			}
 			else if(s == "max_allowed_packet")
@@ -542,7 +542,6 @@ bool DBInterfaceMysql::write_query_result(MemoryStream * result)
 		if(mysql())
 			affectedRows = mysql()->affected_rows;
 		
-		(*result) << ""; // errormsg
 		(*result) << nfields;
 		(*result) << affectedRows;
 	}
@@ -691,7 +690,7 @@ bool DBInterfaceMysql::processException(std::exception & e)
 
 	if (dbe->isLostConnection())
 	{
-		INFO_MSG(fmt::format("DBInterfaceMysql::processException: "
+		ERROR_MSG(fmt::format("DBInterfaceMysql::processException: "
 				"Thread {:p} lost connection to database. Exception: {}. "
 				"Attempting to reconnect.\n",
 			(void*)this,
